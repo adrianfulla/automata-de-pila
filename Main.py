@@ -142,8 +142,11 @@ if __name__ == "__main__":
         data['Aceptados'].append(e)
         
     data['Aceptados'] = list(set(data['Aceptados']))
-
     
+    # Loop para ver el funcionamiento de cadenas que han sido aceptadas
+    # for e in data["Aceptados"]:
+    #     auto.run(e) 
+
     joperator.write_json(data)
     
     
