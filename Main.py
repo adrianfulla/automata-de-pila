@@ -9,6 +9,9 @@ Fecha: 6/10/2023
 
 import random
 from datetime import datetime
+from jsonOperator import JsonOperator
+
+aceptados = []
 
 class automata_de_pila:
     def __init__(self, Q, E, P, S, Z, d, F):
@@ -24,8 +27,10 @@ class automata_de_pila:
         # Inicializa la pila con el símbolo inicial de pila
         stack = [self.Z]
         current_state = self.S
+        print(f"Cadena a analizar: {input_string}")
         
         for symbol in input_string:
+            print(f"estado {current_state}, simbolo: {symbol}, stack: {stack}")
             if symbol not in self.E:
                 print(f"Error: El símbolo '{symbol}' no está en el alfabeto de entrada.")
                 return False
@@ -40,11 +45,9 @@ class automata_de_pila:
             
             if current_state not in self.d:
                 print(f"Error: El estado actual '{current_state}' no tiene transiciones validas.")
-                if current_state == "q2":
-                    print(f"Cadena: {input_string},simbolo: {symbol}")
                 return False
             
-            if symbol in self.d[current_state]:
+            if symbol in self.d[current_state] and stack[-1] in self.d[current_state][symbol]:
                 if stack[-1] in self.d[current_state][symbol]:
                     transition = self.d[current_state][symbol][stack[-1]]
                     new_state, stack_symbols = transition
@@ -54,6 +57,7 @@ class automata_de_pila:
                         stack.pop()  # Desapila el símbolo superior
                     else:
                         # Apila los símbolos de stack_symbols (en orden inverso)
+                        stack.pop()
                         for s in reversed(stack_symbols):
                             stack.append(s)
                 else:
@@ -70,6 +74,7 @@ class automata_de_pila:
                     if stack_symbols == 'e':
                         stack.pop()  # Desapila el símbolo superior
                     else:
+                        stack.pop()
                         # Apila los símbolos de stack_symbols (en orden inverso)
                         for s in reversed(stack_symbols):
                             stack.append(s)
@@ -80,6 +85,8 @@ class automata_de_pila:
                 print(f"Error: No se encontró una transición para el símbolo '{symbol}' en el estado '{current_state}' con '{stack[-1]}' en la cima de la pila.")
                 return False
 
+        print(f"estado {current_state}, simbolo: {symbol}, stack: {stack}")
+        
         if current_state in self.F:
             print(f"La cadena {input_string} fue aceptada por el autómata.")
             return True
@@ -92,7 +99,7 @@ def generate_expressions(E):
     random.seed(datetime.now().timestamp())
     expressions = []
     
-    for _ in range(random.randint(1, 100)):
+    for _ in range(random.randint(1, 10000)):
         expression = ""
         for _ in range(random.randint(1, 15)):
             expression += E[random.randint(0, n-1)]
@@ -100,7 +107,7 @@ def generate_expressions(E):
     
     return expressions
 
-# Ejemplo de uso
+
 if __name__ == "__main__":
     Q = ['q0', 'q1', 'q2']
     E = ['0', '1']
@@ -117,23 +124,26 @@ if __name__ == "__main__":
     Z = 'Z0'
 
     auto = automata_de_pila(Q, E, P, S, Z, d, F)
-    input_string = '0110'  # Reemplaza esto con la cadena que quieras probar
-    auto.run(input_string)
     
-    #print("Expresiones aleatoria")
+    print("Expresiones aleatoria")
     
     expressions = generate_expressions(E)
-    aceptados = []
-    rechazados = []
+
     for expression in expressions:
         if auto.run(expression):
             aceptados.append(expression)
-        else:
-            print(f"La cadena {expression} no fue aceptada por el autómata")
-            rechazados.append(expression)
-     
-    print("---------------------------------------------------------------")       
-    print("Expresiones aceptadas")
+            
+         
+    joperator = JsonOperator('Aceptados.json')
+    
+    data = joperator.read_json()
+    
     for e in aceptados:
-        print(e)
+        data['Aceptados'].append(e)
         
+    data['Aceptados'] = list(set(data['Aceptados']))
+
+    
+    joperator.write_json(data)
+    
+    
