@@ -23,13 +23,17 @@ class automata_de_pila:
         self.d = d # Funcion de transición
         self.F = F # Estados finales
         
+                            
     def run(self, input_string):
         # Inicializa la pila con el símbolo inicial de pila
         stack = [self.Z]
         current_state = self.S
+        count = 0
+             
         print(f"Cadena a analizar: {input_string}")
         
         for symbol in input_string:
+            count += 1
             print(f"estado {current_state}, simbolo: {symbol}, stack: {stack}")
             if symbol not in self.E:
                 print(f"Error: El símbolo '{symbol}' no está en el alfabeto de entrada.")
@@ -64,9 +68,15 @@ class automata_de_pila:
                     print(f"Error: No se encontró una transición para el símbolo '{symbol}' en el estado '{current_state}' con '{stack[-1]}' en la cima de la pila.")
                     return False
 
-            elif 'e' in self.d[current_state]:
-                symbol = 'e'
-                if stack[-1] in self.d[current_state][symbol]:
+            else:
+                print(f"Error: No se encontró una transición para el símbolo '{symbol}' en el estado '{current_state}' con '{stack[-1]}' en la cima de la pila.")
+                return False
+
+        print(f"estado {current_state}, simbolo: {symbol}, stack: {stack}")
+        
+        if 'e' in self.d[current_state] and count == len(input_string):
+            symbol = 'e'
+            if stack[-1] in self.d[current_state][symbol]:
                     transition = self.d[current_state][symbol][stack[-1]]
                     new_state, stack_symbols = transition
                     current_state = new_state
@@ -74,18 +84,13 @@ class automata_de_pila:
                     if stack_symbols == 'e':
                         stack.pop()  # Desapila el símbolo superior
                     else:
-                        stack.pop()
                         # Apila los símbolos de stack_symbols (en orden inverso)
+                        stack.pop()
                         for s in reversed(stack_symbols):
                             stack.append(s)
-                else:
-                    print(f"Error: No se encontró una transición para el símbolo '{symbol}' en el estado '{current_state}' con '{stack[-1]}' en la cima de la pila.")
-                    return False
             else:
                 print(f"Error: No se encontró una transición para el símbolo '{symbol}' en el estado '{current_state}' con '{stack[-1]}' en la cima de la pila.")
                 return False
-
-        print(f"estado {current_state}, simbolo: {symbol}, stack: {stack}")
         
         if current_state in self.F:
             print(f"La cadena {input_string} fue aceptada por el autómata.")
@@ -132,7 +137,7 @@ if __name__ == "__main__":
     for expression in expressions:
         if auto.run(expression):
             aceptados.append(expression)
-            
+        
          
     joperator = JsonOperator('Aceptados.json')
     
